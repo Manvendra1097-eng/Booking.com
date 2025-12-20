@@ -10,6 +10,10 @@ import React from 'react';
 import dayjs from 'dayjs';
 
 function DateInput({ form }) {
+  const isDateDisabled = React.useCallback(
+    (date) => dayjs().isAfter(dayjs(date), 'date'),
+    []
+  );
   return (
     <Popover>
       <FormField
@@ -48,7 +52,7 @@ function DateInput({ form }) {
               sideOffset="1"
               align="start"
               className="w-[500px] md:w-[640px] "
-              // onOpenAutoFocus={(e) => e.preventDefault()}
+              onOpenAutoFocus={(e) => e.preventDefault()}
             >
               <Calendar
                 mode="range"
@@ -56,7 +60,7 @@ function DateInput({ form }) {
                 selected={field.value}
                 numberOfMonths={2}
                 fromMonth={new Date()}
-                disabled={(date) => dayjs().isAfter(dayjs(date), 'date')}
+                disabled={isDateDisabled}
                 onSelect={(value) => {
                   field.onChange(value);
                 }}
