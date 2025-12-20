@@ -33,9 +33,9 @@ function LocationInput({ form }) {
       <PopoverTrigger asChild>
         <div
           role="button"
-          className="bg-background w-full flex gap-2 items-center p-2 md:p-4"
+          className="bg-background w-full h-full flex gap-2 items-center p-2 md:p-4"
           onClick={() => {
-            form.clearErrors('city'); // ✅ remove error immediately
+            form.clearErrors('city');
             setOpen(true);
           }}
         >

@@ -20,9 +20,9 @@ function DateInput({ form }) {
         name="bookingDates"
         control={form.control}
         render={({ field }) => (
-          <div className="relative">
+          <>
             <PopoverTrigger asChild>
-              <FormItem className="p-4 md:px-4 md:py-2 rounded bg-background h-full md:min-w-[300px] lg:flex-auto">
+              <FormItem className="p-4 md:px-4 md:py-2 rounded bg-background h-full flex-2">
                 <FormControl>
                   <div role="button" className="flex items-center h-full">
                     <Icon
@@ -67,7 +67,7 @@ function DateInput({ form }) {
                 className="mx-auto"
               />
             </PopoverContent>
-          </div>
+          </>
         )}
       />
     </Popover>

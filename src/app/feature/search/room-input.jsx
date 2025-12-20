@@ -16,7 +16,7 @@ function RoomInput({ form }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="w-full md:w-4/12  bg-background flex items-center gap-2 p-4">
+        <button className="bg-background w-full h-full flex items-center gap-2 p-4">
           <Icon icon="person" className="stroke-muted-foreground" size="24" />
           <span>{roomCount}</span>
           <span>room</span>
