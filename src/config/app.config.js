@@ -126,3 +126,89 @@ export const DESTINATION = [
   { city: 'Mumbai', country: 'India' },
   { city: 'Agra', country: 'India' },
 ];
+export const SEARCH_PARAMS_KEYS = {
+  CHECKIN: 'checkin',
+  CHECKOUT: 'checkout',
+  ROOMS: 'rooms',
+  LOCATION: 'location',
+  SELECTED_ROOM: 'selected_rcid',
+  SORTBY: 'sort',
+  PAGE: 'page',
+  STAR_CATEGORY: 'star-category',
+  PRICE_RANGE: 'price-range',
+  NEXT_REDIRECT: 'next',
+};
+
+export const SEARCH_FILTER_LABEL_KEY = {
+  popularity: 'Our top picks',
+  'price-asc': 'Price (lowest first)',
+  'price-desc': 'Price (highest first)',
+};
+export const SEARCH_FILTERS = [
+  {
+    label: 'Our top picks',
+    value: 'popularity',
+  },
+  {
+    label: 'Price (lowest first)',
+    value: 'price-asc',
+  },
+  {
+    label: 'Price (highest first)',
+    value: 'price-desc',
+  },
+];
+export const STAR_FILTERS = [
+  {
+    id: 1,
+    label: '5 Star',
+    value: 5,
+  },
+  {
+    id: 2,
+    label: '4 Star',
+    value: 4,
+  },
+  {
+    id: 3,
+    label: '3 Star',
+    value: 3,
+  },
+  {
+    id: 4,
+    label: '2 Star',
+    value: 2,
+  },
+  {
+    id: 5,
+    label: '1 Star',
+    value: 1,
+  },
+];
+export const PRICE_FILTERS = [
+  {
+    id: 1,
+    label: '₹0 - ₹500',
+    value: '0-500',
+  },
+  {
+    id: 2,
+    label: '₹500 - ₹1000',
+    value: '500-1000',
+  },
+  {
+    id: 3,
+    label: '₹1000 - ₹1500',
+    value: '1000-1500',
+  },
+  {
+    id: 4,
+    label: '₹1500 - ₹2000',
+    value: '1500-2000',
+  },
+  {
+    id: 5,
+    label: '₹2000 - ₹2500',
+    value: '2000-2500',
+  },
+];
