@@ -1,0 +1,230 @@
+import { useAuth } from '@/context_provider/auth-context-provider';
+import { Link } from 'react-router';
+import { PATH } from '@/config/app.path';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import {
+  User,
+  Calendar,
+  Heart,
+  Settings,
+  LogOut,
+  CreditCard,
+  Bell,
+  Shield,
+} from 'lucide-react';
+import { toast } from 'sonner';
+import { useState } from 'react';
+
+function UserDropdown() {
+  const {
+    user: { data: userData },
+    isAuthenticated,
+    logout,
+  } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  if (!isAuthenticated || !userData) {
+    return (
+      <Button asChild variant="ghost" size="sm">
+        <Link to={PATH.SIGN_IN}>Sign In</Link>
+      </Button>
+    );
+  }
+
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (userData.name) {
+      return userData.name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+    }
+    return userData.email[0]?.toUpperCase();
+  };
+
+  // Get user display name
+  const getUserDisplayName = () => {
+    return userData.name || userData.email.split('@')[0];
+  };
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logout();
+      toast.success('Logged out successfully');
+    } catch (error) {
+      toast.error('Logout failed', {
+        description: 'Please try again',
+      });
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0">
+          <Avatar className="h-10 w-10">
+            <AvatarImage
+              src={userData.profilePicture}
+              alt={userData.name || userData.email}
+            />
+            <AvatarFallback className="bg-blue-600 text-white font-semibold">
+              {getUserInitials()}
+            </AvatarFallback>
+          </Avatar>
+          {/* Online indicator */}
+          <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white"></span>
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent className="w-64" align="end" forceMount>
+        {/* User Info Section */}
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1 p-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium leading-none">
+                {getUserDisplayName()}
+              </p>
+            </div>
+            <p className="text-xs leading-none text-muted-foreground">
+              {userData.email}
+            </p>
+          </div>
+        </DropdownMenuLabel>
+
+        <DropdownMenuSeparator />
+
+        {/* Account Section */}
+        <DropdownMenuGroup>
+          <DropdownMenuItem asChild>
+            <Link to={PATH.PROFILE} className="cursor-pointer">
+              <User className="mr-2 h-4 w-4" />
+              <span>Profile</span>
+            </Link>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem asChild>
+            <Link to={PATH.BOOKINGS} className="cursor-pointer">
+              <Calendar className="mr-2 h-4 w-4" />
+              <span>My Bookings</span>
+              {userData.pendingBookings > 0 && (
+                <Badge className="ml-auto" variant="secondary">
+                  {userData.pendingBookings}
+                </Badge>
+              )}
+            </Link>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem asChild>
+            <Link to="/trips" className="cursor-pointer">
+              <Calendar className="mr-2 h-4 w-4" />
+              <span>Trips</span>
+            </Link>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+
+        <DropdownMenuSeparator />
+
+        {/* Preferences Section */}
+        <DropdownMenuGroup>
+          <DropdownMenuItem asChild>
+            <Link to="/favorites" className="cursor-pointer">
+              <Heart className="mr-2 h-4 w-4" />
+              <span>Favorites</span>
+              {userData.favoriteCount > 0 && (
+                <Badge className="ml-auto" variant="secondary">
+                  {userData.favoriteCount}
+                </Badge>
+              )}
+            </Link>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem asChild>
+            <Link to="/notifications" className="cursor-pointer">
+              <Bell className="mr-2 h-4 w-4" />
+              <span>Notifications</span>
+              {userData.unreadNotifications > 0 && (
+                <Badge className="ml-auto" variant="destructive">
+                  {userData.unreadNotifications}
+                </Badge>
+              )}
+            </Link>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem asChild>
+            <Link to="/payment-methods" className="cursor-pointer">
+              <CreditCard className="mr-2 h-4 w-4" />
+              <span>Payment methods</span>
+            </Link>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+
+        <DropdownMenuSeparator />
+
+        {/* Business Section */}
+        {userData.isHost && (
+          <>
+            <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
+                <Link to="/host/dashboard" className="cursor-pointer">
+                  <Shield className="mr-2 h-4 w-4" />
+                  <span>Host Dashboard</span>
+                  <Badge className="ml-auto" variant="outline">
+                    Pro
+                  </Badge>
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+                <Link to="/host/listings" className="cursor-pointer">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  <span>My Listings</span>
+                  <Badge className="ml-auto" variant="secondary">
+                    {userData.listingCount}
+                  </Badge>
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+          </>
+        )}
+
+        {/* Settings & Logout */}
+        <DropdownMenuGroup>
+          <DropdownMenuItem asChild>
+            <Link to="/settings" className="cursor-pointer">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
+            </Link>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="cursor-pointer text-red-600 focus:text-red-600"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>{isLoggingOut ? 'Logging out...' : 'Logout'}</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+export default UserDropdown;

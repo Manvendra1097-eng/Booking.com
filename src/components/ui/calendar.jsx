@@ -199,14 +199,14 @@ function CalendarDayButton({ className, day, modifiers, ...props }) {
       data-range-middle={modifiers.range_middle}
       className={cn(
         `
-  data-[selected-single=true]:!bg-blue-600 
+  data-[selected-single=true]:!bg-blue-600
   data-[selected-single=true]:!text-white
-  
-  data-[range-start=true]:!bg-blue-600 
+
+  data-[range-start=true]:!bg-blue-600
   data-[range-start=true]:!text-white
   data-[range-start=true]:rounded-r-none
 
-  data-[range-end=true]:!bg-blue-600 
+  data-[range-end=true]:!bg-blue-600
   data-[range-end=true]:!text-white
   data-[range-end=true]:rounded-l-none
 

@@ -28,7 +28,7 @@ const useMutation = (url, method) => {
           error: null,
         });
 
-        options.onSuccess?.(result, response);
+        options.onSuccess?.(result);
         return result;
       } catch (err) {
         const error = err.response?.data?.message || err.message;
