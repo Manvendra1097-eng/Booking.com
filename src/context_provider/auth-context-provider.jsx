@@ -18,33 +18,24 @@ import axiosInstance from '@/lib/axios-instance';
 const AuthContext = createContext(null);
 
 const AuthContextProvider = ({ children }) => {
-  const [authData, setAuthData] = useState({
-    user: null,
-    isAuthenticated: false,
-    isLoading: true,
-  });
-
   const [token, setToken] = useState(() => fetchValueFromLs(TOKEN_KEY));
   const queryClient = useQueryClient();
 
   // TanStack Query for user profile
   const {
-    data: userData,
-    isLoading: isProfileLoading,
+    data: user,
+    isLoading,
     error,
     isError,
   } = useQuery({
-    queryKey: ['user-profile'], // Cache key includes token
+    queryKey: ['user-profile'],
     queryFn: async () => {
-      if (!token) return null;
-
       const response = await axiosInstance.get(API_CONFIG.USER.PROFILE);
       return response.data;
     },
-    enabled: !!token, // Only run if token exists
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000,
     retry: (failureCount, error) => {
-      // Don't retry on 401/403
       if (error.response?.status === 401 || error.response?.status === 403) {
         return false;
       }
@@ -52,56 +43,23 @@ const AuthContextProvider = ({ children }) => {
     },
   });
 
-  // Sync auth state
+  // Handle token invalidation
   useEffect(() => {
-    // No token = not authenticated
-    if (!token) {
-      setAuthData({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-      });
-      return;
-    }
-
-    // Loading from query
-    if (isProfileLoading) {
-      setAuthData((prev) => ({ ...prev, isLoading: true }));
-      return;
-    }
-
-    // Success
-    if (userData && !isError) {
-      setAuthData({
-        user: userData,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-      return;
-    }
-
-    // Error
-    if (isError) {
-      // Token is invalid (401/403)
-      if (error?.response?.status === 401 || error?.response?.status === 403) {
+    if (isError && token) {
+      const status = error?.response?.status;
+      if (status === 401 || status === 403) {
+        console.warn('Token invalid, logging out');
         removeValueFromLs(TOKEN_KEY);
         setToken(null);
-        queryClient.removeQueries({ queryKey: ['user-profile'] }); // Clear cache
+        queryClient.clear();
       }
-
-      setAuthData({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-      });
     }
-  }, [token, userData, isProfileLoading, isError, error, queryClient]);
+  }, [isError, error, token, queryClient]);
 
   // Login function
   const login = useCallback((accessToken) => {
     storeValueInLs(TOKEN_KEY, accessToken);
     setToken(accessToken);
-    // Query will auto-refetch because token changed
   }, []);
 
   // Logout function
@@ -109,42 +67,25 @@ const AuthContextProvider = ({ children }) => {
     try {
       if (token) {
         await axiosInstance.post(API_CONFIG.SIGNOUT, {});
-        console.log('✅ Logout API call successful');
       }
     } catch (error) {
-      // Even if API fails, continue with client-side logout
-      console.warn('Logout API failed, continuing client-side:', error.message);
+      console.warn('Logout API failed:', error.message);
     } finally {
       removeValueFromLs(TOKEN_KEY);
       setToken(null);
-      // Clear ALL auth-related queries
-      queryClient.removeQueries({
-        predicate: (query) => {
-          const queryKey = query.queryKey[0];
-          const userQueries = [
-            'user-profile',
-            'bookings',
-            'favorites',
-            'reviews',
-          ];
-          return userQueries.includes(queryKey);
-        },
-      });
+      queryClient.clear();
     }
   }, [queryClient, token]);
 
-  // Update user data
+  // Update user data (optimistic update)
   const updateUser = useCallback(
-    (userData) => {
-      setAuthData((prev) => ({
-        ...prev,
-        user: { ...prev.user, ...userData },
+    (updates) => {
+      queryClient.setQueryData(['user-profile'], (old) => ({
+        ...old,
+        ...updates,
       }));
-
-      // Update cache
-      queryClient.setQueryData(['user-profile', token], userData);
     },
-    [token, queryClient]
+    [queryClient]
   );
 
   // Refresh user profile
@@ -153,7 +94,9 @@ const AuthContextProvider = ({ children }) => {
   }, [queryClient]);
 
   const value = {
-    ...authData,
+    user: user || null,
+    isAuthenticated: !!token && !!user && !isError,
+    isLoading: isLoading && !!token,
     token,
     login,
     logout,

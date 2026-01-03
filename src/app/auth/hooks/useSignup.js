@@ -1,7 +1,6 @@
 import { API_CONFIG } from '@/config/aipconfig';
 import { PATH } from '@/config/app.path';
-import { useAuth } from '@/context_provider/auth-context-provider';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
@@ -17,39 +16,56 @@ const useSignup = () => {
   });
 
   const navigate = useNavigate();
-  const { login } = useAuth();
-  const queryClient = useQueryClient();
 
   // TanStack Query mutation
   const { mutate, isPending } = useMutation({
-    mutationFn: async (signup_data) => {
-      const response = await axiosInstance.post(API_CONFIG.SIGNUP, signup_data);
+    mutationFn: async (signupData) => {
+      const response = await axiosInstance.post(API_CONFIG.SIGNUP, signupData);
       return response.data;
     },
     onSuccess: (response) => {
-      toast.success('Registrated successfully', {
-        description: 'Redirecting to login page, login with your credential',
+      // Extract user data from response
+      const userData = response?.data;
+
+      toast.success('Account created successfully!', {
+        description: `Welcome ${userData?.name || 'aboard'}! Please sign in to continue.`,
       });
-      // Navigate after short delay
+
+      // Navigate to signin page
       setTimeout(() => {
         navigate(PATH.SIGN_IN, { replace: true });
-      }, 100);
+      }, 1500);
     },
     onError: (err) => {
       console.error('Signup error:', err);
 
       let errorMessage = 'Signup failed';
-      let errorDescription = 'Something went wrong, try after sometime';
+      let errorDescription = 'Something went wrong, please try again';
 
+      // Handle API error response
       if (err.response?.data?.error) {
         errorMessage = err.response.data.error.status || errorMessage;
         errorDescription = err.response.data.error.message || errorDescription;
+      }
+      // Handle common HTTP status codes
+      else if (err.response?.status === 409) {
+        errorMessage = 'Email already registered';
+        errorDescription = 'This email is already in use. Please sign in or use a different email.';
+      } else if (err.response?.status === 422) {
+        errorMessage = 'Invalid information';
+        errorDescription = 'Please check your details and try again.';
+      } else if (err.response?.status === 400) {
+        errorMessage = 'Invalid request';
+        errorDescription = err.response?.data?.message || 'Please check your information.';
       }
 
       toast.error(errorMessage, {
         description: errorDescription,
         duration: 5000,
       });
+
+      // Clear password field for security
+      form.setValue('password', '');
     },
   });
 

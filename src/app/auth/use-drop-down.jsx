@@ -1,5 +1,5 @@
 import { useAuth } from '@/context_provider/auth-context-provider';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { PATH } from '@/config/app.path';
 import {
   DropdownMenu,
@@ -25,16 +25,18 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { da } from 'date-fns/locale';
 
 function UserDropdown() {
   const {
-    user: { data: userData },
+    user: { data },
     isAuthenticated,
     logout,
   } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const navigate = useNavigate();
 
-  if (!isAuthenticated || !userData) {
+  if (!isAuthenticated || !data) {
     return (
       <Button asChild variant="ghost" size="sm">
         <Link to={PATH.SIGN_IN}>Sign In</Link>
@@ -44,28 +46,39 @@ function UserDropdown() {
 
   // Get user initials for avatar
   const getUserInitials = () => {
-    if (userData.name) {
-      return userData.name
+    if (data.name) {
+      return data.name
         .split(' ')
         .map((n) => n[0])
         .join('')
         .toUpperCase()
         .slice(0, 2);
     }
-    return userData.email[0]?.toUpperCase();
+    return data.email?.[0]?.toUpperCase() || '?';
   };
 
   // Get user display name
   const getUserDisplayName = () => {
-    return userData.name || userData.email.split('@')[0];
+    return data.name || data.email?.split('@')[0] || 'User';
   };
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
+
     try {
       await logout();
-      toast.success('Logged out successfully');
+
+      toast.success('Logged out successfully', {
+        description: 'See you soon!',
+      });
+
+      // Navigate to home page after logout
+      setTimeout(() => {
+        navigate(PATH.HOME, { replace: true });
+      }, 100);
     } catch (error) {
+      console.error('Logout error:', error);
+
       toast.error('Logout failed', {
         description: 'Please try again',
       });
@@ -77,11 +90,14 @@ function UserDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0">
+        <Button
+          variant="ghost"
+          className="relative h-10 w-10 rounded-full p-0 hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+        >
           <Avatar className="h-10 w-10">
             <AvatarImage
-              src={userData.profilePicture}
-              alt={userData.name || userData.email}
+              src={data.profilePicture}
+              alt={data.name || data.email}
             />
             <AvatarFallback className="bg-blue-600 text-white font-semibold">
               {getUserInitials()}
@@ -102,7 +118,7 @@ function UserDropdown() {
               </p>
             </div>
             <p className="text-xs leading-none text-muted-foreground">
-              {userData.email}
+              {data.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -122,9 +138,9 @@ function UserDropdown() {
             <Link to={PATH.BOOKINGS} className="cursor-pointer">
               <Calendar className="mr-2 h-4 w-4" />
               <span>My Bookings</span>
-              {userData.pendingBookings > 0 && (
+              {data.pendingBookings > 0 && (
                 <Badge className="ml-auto" variant="secondary">
-                  {userData.pendingBookings}
+                  {data.pendingBookings}
                 </Badge>
               )}
             </Link>
@@ -146,9 +162,9 @@ function UserDropdown() {
             <Link to="/favorites" className="cursor-pointer">
               <Heart className="mr-2 h-4 w-4" />
               <span>Favorites</span>
-              {userData.favoriteCount > 0 && (
+              {data.favoriteCount > 0 && (
                 <Badge className="ml-auto" variant="secondary">
-                  {userData.favoriteCount}
+                  {data.favoriteCount}
                 </Badge>
               )}
             </Link>
@@ -158,9 +174,9 @@ function UserDropdown() {
             <Link to="/notifications" className="cursor-pointer">
               <Bell className="mr-2 h-4 w-4" />
               <span>Notifications</span>
-              {userData.unreadNotifications > 0 && (
+              {data.unreadNotifications > 0 && (
                 <Badge className="ml-auto" variant="destructive">
-                  {userData.unreadNotifications}
+                  {data.unreadNotifications}
                 </Badge>
               )}
             </Link>
@@ -177,7 +193,7 @@ function UserDropdown() {
         <DropdownMenuSeparator />
 
         {/* Business Section */}
-        {userData.isHost && (
+        {data.isHost && (
           <>
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
@@ -195,7 +211,7 @@ function UserDropdown() {
                   <Calendar className="mr-2 h-4 w-4" />
                   <span>My Listings</span>
                   <Badge className="ml-auto" variant="secondary">
-                    {userData.listingCount}
+                    {data.listingCount || 0}
                   </Badge>
                 </Link>
               </DropdownMenuItem>
@@ -216,7 +232,7 @@ function UserDropdown() {
           <DropdownMenuItem
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="cursor-pointer text-red-600 focus:text-red-600"
+            className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
           >
             <LogOut className="mr-2 h-4 w-4" />
             <span>{isLoggingOut ? 'Logging out...' : 'Logout'}</span>

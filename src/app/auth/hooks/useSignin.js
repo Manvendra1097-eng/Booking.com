@@ -1,7 +1,7 @@
 import { API_CONFIG } from '@/config/aipconfig';
 import { PATH } from '@/config/app.path';
 import { useAuth } from '@/context_provider/auth-context-provider';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
@@ -17,7 +17,6 @@ const useSignin = () => {
 
   const navigate = useNavigate();
   const { login } = useAuth();
-  const queryClient = useQueryClient();
 
   // TanStack Query mutation
   const { mutate, isPending } = useMutation({
@@ -26,32 +25,26 @@ const useSignin = () => {
       return response.data;
     },
     onSuccess: (response) => {
+      // Extract access token from response
+      // Assuming structure: { data: { accessToken: "..." } }
       const accessToken = response?.data?.accessToken;
 
       if (!accessToken) {
         toast.error('Login failed', {
-          description: 'No access token received',
+          description: 'No access token received from server',
         });
         return;
       }
 
-      // Update auth context
+      // Update auth context (this triggers automatic profile fetch)
       login(accessToken);
 
-      // Prefetch user profile for better UX
-      queryClient.prefetchQuery({
-        queryKey: ['user-profile'],
-        queryFn: async () => {
-          const profileResponse = await axiosInstance.get(
-            API_CONFIG.USER.PROFILE
-          );
-          return profileResponse.data;
-        },
+      // Show success message
+      toast.success('Welcome back!', {
+        description: 'You have successfully signed in.',
       });
 
-      toast.success('Logged in successfully');
-
-      // Navigate after short delay
+      // Navigate to home page
       setTimeout(() => {
         navigate(PATH.HOME, { replace: true });
       }, 300);
@@ -60,11 +53,23 @@ const useSignin = () => {
       console.error('Login error:', err);
 
       let errorMessage = 'Login failed';
-      let errorDescription = 'Please check your credentials';
+      let errorDescription = 'Please check your credentials and try again';
 
+      // Handle API error response
       if (err.response?.data?.error) {
         errorMessage = err.response.data.error.status || errorMessage;
         errorDescription = err.response.data.error.message || errorDescription;
+      }
+      // Handle common HTTP status codes
+      else if (err.response?.status === 401) {
+        errorMessage = 'Invalid credentials';
+        errorDescription = 'The email or password you entered is incorrect.';
+      } else if (err.response?.status === 404) {
+        errorMessage = 'Account not found';
+        errorDescription = 'No account exists with this email address.';
+      } else if (err.response?.status === 403) {
+        errorMessage = 'Account suspended';
+        errorDescription = 'Your account has been suspended. Please contact support.';
       }
 
       toast.error(errorMessage, {
@@ -72,6 +77,7 @@ const useSignin = () => {
         duration: 5000,
       });
 
+      // Clear password field for security
       form.setValue('password', '');
     },
   });
