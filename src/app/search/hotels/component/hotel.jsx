@@ -1,5 +1,6 @@
 import Icon from '@/components/ui/icon';
 import Text from '@/components/ui/Text';
+import LazyImage from '@/components/ui/lazy-image';
 import React from 'react';
 
 const hotelInfo = {
@@ -26,30 +27,40 @@ const HotelImages = ({ photos }) => {
   return (
     <div className="flex flex-col gap-1">
       <div className="w-60">
-        <img
+        <LazyImage
           height={138}
           width={240}
           className="rounded-sm max-h-[138px] w-full"
           src={photos[activeImageIndex]}
-          alt={'Hotel Images'}
+          alt={`${name || 'Hotel'} main image`}
         />
       </div>
       <div className="grid grid-cols-4 gap-1 w-60">
         {photos.slice(1).map((image, index) => (
           <div className="relative overflow-hidden rounded-sm" key={image}>
-            <img
-              height={50}
-              width={60}
-              className="h-12"
-              src={image}
-              alt="Hotel Images"
+            <button
+              type="button"
+              className="h-12 w-full"
+              onClick={() => imageHoverHandler(index + 1)}
               onMouseEnter={() => imageHoverHandler(index + 1)}
-            />
-            {index === photos.length - 2 && (
-              <span className="text-[10px] flex pointer-events-none items-center justify-center font-semibold text-white absolute inset-0 backdrop-blur-sm">
-                View All
-              </span>
-            )}
+              aria-label={`View hotel image ${index + 2} of ${photos.length}`}
+            >
+              <LazyImage
+                height={50}
+                width={60}
+                className="h-12 w-full object-cover"
+                src={image}
+                alt={`Hotel thumbnail image ${index + 2}`}
+              />
+              {index === photos.length - 2 && (
+                <span
+                  className="text-[10px] flex pointer-events-none items-center justify-center font-semibold text-white absolute inset-0 backdrop-blur-sm"
+                  aria-hidden="true"
+                >
+                  View All
+                </span>
+              )}
+            </button>
           </div>
         ))}
       </div>
@@ -59,21 +70,24 @@ const HotelImages = ({ photos }) => {
 
 function Hotel({ name, photos, city, id, amenities, price }) {
   return (
-    <div className="flex w-full transition-colors border rounded-lg hover:border-primary">
+    <article className="flex w-full transition-colors border rounded-lg hover:border-primary">
       <div className="flex-1 flex gap-4 p-4">
         <HotelImages photos={photos} />
         <div className="space-y-3">
           <div className="space-y-0.5">
             <h2 className="inline text-xl font-bold">
               {name} &nbsp;
-              {new Array(3).fill(0).map((_, index) => (
-                <Icon
-                  key={index}
-                  icon="star"
-                  size="12"
-                  className="inline mb-2 text-yellow-500"
-                />
-              ))}
+              <span aria-label={`Rating: 3 out of 5 stars`}>
+                {new Array(3).fill(0).map((_, index) => (
+                  <Icon
+                    key={index}
+                    icon="star"
+                    size="12"
+                    className="inline mb-2 text-yellow-500"
+                    aria-hidden="true"
+                  />
+                ))}
+              </span>
             </h2>
             <p className="text-sm font-semibold text-primary">{city}</p>
           </div>

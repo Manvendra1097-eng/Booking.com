@@ -12,6 +12,13 @@ function Header() {
   if (isLoading) {
     return (
       <header className="bg-brand pt-2">
+        {/* Skip to main content link for keyboard navigation */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:bg-blue-600 focus:text-white focus:p-2 focus:z-50"
+        >
+          Skip to main content
+        </a>
         <div className="container flex justify-between items-center">
           <div className="logo-wrapper">
             {/* SVG Placeholder - Same dimensions as actual logo */}
@@ -35,6 +42,13 @@ function Header() {
   }
   return (
     <header className="bg-brand pt-2">
+      {/* Skip to main content link for keyboard navigation */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:bg-blue-600 focus:text-white focus:p-2 focus:z-50"
+      >
+        Skip to main content
+      </a>
       <div className="container flex justify-between items-center">
         <div className="logo-wrapper">
           <a href="#" aria-label="Go to Booking.com">

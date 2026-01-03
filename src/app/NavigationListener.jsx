@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { authEmitter } from '@/lib/axios-instance';
+import { devLog } from '@/lib/utils';
 
 /**
  * NavigationListener Component
@@ -16,7 +17,7 @@ function NavigationListener() {
   useEffect(() => {
     // Listen for navigation events from axios interceptor
     const unsubscribe = authEmitter.on('navigationNeeded', (path) => {
-      console.log('🔀 Navigation needed:', path);
+      devLog('log', '🔀 Navigation needed:', path);
       navigate(path, { replace: true });
     });
 

@@ -5,9 +5,10 @@ import RoomInput from './room-input';
 import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
+import { devLog } from '@/lib/utils';
 
 const onSubmit = (data) => {
-  console.log('Search form input ... : ', data);
+  devLog('log', 'Search form input: ', data);
 };
 
 function Search() {

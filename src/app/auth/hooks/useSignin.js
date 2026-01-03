@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import axiosInstance from '@/lib/axios-instance';
+import { devLog } from '@/lib/utils';
 
 const useSignin = () => {
   const form = useForm({
@@ -50,7 +51,7 @@ const useSignin = () => {
       }, 300);
     },
     onError: (err) => {
-      console.error('Login error:', err);
+      devLog('error', 'Login error:', err);
 
       let errorMessage = 'Login failed';
       let errorDescription = 'Please check your credentials and try again';
@@ -69,7 +70,8 @@ const useSignin = () => {
         errorDescription = 'No account exists with this email address.';
       } else if (err.response?.status === 403) {
         errorMessage = 'Account suspended';
-        errorDescription = 'Your account has been suspended. Please contact support.';
+        errorDescription =
+          'Your account has been suspended. Please contact support.';
       }
 
       toast.error(errorMessage, {

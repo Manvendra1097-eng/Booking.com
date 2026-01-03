@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import Text from '@/components/ui/Text';
 import { PATH } from '@/config/app.path';
 import { Link } from 'react-router';
+import { VALIDATION_PATTERNS } from '@/lib/utils';
 import Auth from '.';
 import useSignup from './hooks/useSignup';
 
@@ -24,6 +25,8 @@ function Signup() {
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="mt-4 w-full space-y-4"
+            noValidate
+            aria-label="Sign up form"
           >
             <FormField
               control={form.control}
@@ -43,7 +46,12 @@ function Signup() {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="enter your name" {...field} />
+                    <Input
+                      placeholder="enter your name"
+                      type="text"
+                      required
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -55,7 +63,7 @@ function Signup() {
               rules={{
                 required: 'Email is required',
                 pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  value: VALIDATION_PATTERNS.EMAIL,
                   message: 'Enter a valid email address',
                 },
               }}
@@ -63,7 +71,13 @@ function Signup() {
                 <FormItem>
                   <FormLabel>Email address</FormLabel>
                   <FormControl>
-                    <Input placeholder="enter your email" {...field} />
+                    <Input
+                      placeholder="enter your email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -82,6 +96,8 @@ function Signup() {
                     <Input
                       type="password"
                       placeholder="enter your password"
+                      autoComplete="new-password"
+                      required
                       {...field}
                     />
                   </FormControl>

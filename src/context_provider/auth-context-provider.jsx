@@ -14,6 +14,7 @@ import {
   TOKEN_KEY,
 } from '@/lib/storage-manage';
 import axiosInstance from '@/lib/axios-instance';
+import { devLog, isAuthError } from '@/lib/utils';
 
 const AuthContext = createContext(null);
 
@@ -36,7 +37,7 @@ const AuthContextProvider = ({ children }) => {
     enabled: !!token,
     staleTime: 5 * 60 * 1000,
     retry: (failureCount, error) => {
-      if (error.response?.status === 401 || error.response?.status === 403) {
+      if (isAuthError(error)) {
         return false;
       }
       return failureCount < 2;
@@ -46,15 +47,14 @@ const AuthContextProvider = ({ children }) => {
   // Handle token invalidation
   useEffect(() => {
     if (isError && token) {
-      const status = error?.response?.status;
-      if (status === 401 || status === 403) {
-        console.warn('Token invalid, logging out');
+      if (isAuthError(error)) {
+        devLog('warn', 'Token invalid, logging out');
         removeValueFromLs(TOKEN_KEY);
         setToken(null);
         queryClient.clear();
       }
     }
-  }, [isError, error, token, queryClient]);
+  }, [isError, error?.response?.status, token, queryClient]);
 
   // Login function
   const login = useCallback((accessToken) => {
@@ -65,17 +65,15 @@ const AuthContextProvider = ({ children }) => {
   // Logout function
   const logout = useCallback(async () => {
     try {
-      if (token) {
-        await axiosInstance.post(API_CONFIG.SIGNOUT, {});
-      }
+      await axiosInstance.post(API_CONFIG.SIGNOUT, {});
     } catch (error) {
-      console.warn('Logout API failed:', error.message);
+      devLog('warn', 'Logout API failed:', error.message);
     } finally {
       removeValueFromLs(TOKEN_KEY);
       setToken(null);
       queryClient.clear();
     }
-  }, [queryClient, token]);
+  }, [queryClient]);
 
   // Update user data (optimistic update)
   const updateUser = useCallback(

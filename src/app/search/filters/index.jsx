@@ -5,11 +5,12 @@ import StarFilter from './star-filter';
 import PriceFilter from './price-filter';
 import useFilterForm from './hooks/use-filter-form';
 import { Form } from '@/components/ui/form';
+import { devLog } from '@/lib/utils';
 
 function Filters({ className }) {
   const { form } = useFilterForm();
   function onSubmit(data) {
-    console.log('Filter form data: ', data);
+    devLog('log', 'Filter form data: ', data);
   }
   return (
     <div className={className}>

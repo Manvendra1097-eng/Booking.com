@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import axiosInstance from '@/lib/axios-instance';
+import { devLog } from '@/lib/utils';
 
 const useSignup = () => {
   const form = useForm({
@@ -28,7 +29,9 @@ const useSignup = () => {
       const userData = response?.data;
 
       toast.success('Account created successfully!', {
-        description: `Welcome ${userData?.name || 'aboard'}! Please sign in to continue.`,
+        description: `Welcome ${
+          userData?.name || 'aboard'
+        }! Please sign in to continue.`,
       });
 
       // Navigate to signin page
@@ -37,7 +40,7 @@ const useSignup = () => {
       }, 1500);
     },
     onError: (err) => {
-      console.error('Signup error:', err);
+      devLog('error', 'Signup error:', err);
 
       let errorMessage = 'Signup failed';
       let errorDescription = 'Something went wrong, please try again';
@@ -50,13 +53,15 @@ const useSignup = () => {
       // Handle common HTTP status codes
       else if (err.response?.status === 409) {
         errorMessage = 'Email already registered';
-        errorDescription = 'This email is already in use. Please sign in or use a different email.';
+        errorDescription =
+          'This email is already in use. Please sign in or use a different email.';
       } else if (err.response?.status === 422) {
         errorMessage = 'Invalid information';
         errorDescription = 'Please check your details and try again.';
       } else if (err.response?.status === 400) {
         errorMessage = 'Invalid request';
-        errorDescription = err.response?.data?.message || 'Please check your information.';
+        errorDescription =
+          err.response?.data?.message || 'Please check your information.';
       }
 
       toast.error(errorMessage, {

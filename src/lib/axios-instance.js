@@ -5,6 +5,17 @@ import {
   storeValueInLs,
   TOKEN_KEY,
 } from './storage-manage';
+import { devLog } from './utils';
+
+// Validate required environment variables
+const validateEnv = () => {
+  const baseURL = import.meta.env.VITE_BASE_URL;
+  if (!baseURL) {
+    console.error('Missing required environment variable: VITE_BASE_URL');
+    devLog('error', 'API requests may fail without VITE_BASE_URL configured');
+  }
+  return baseURL || 'http://localhost:3000/api';
+};
 
 // Token refresh state
 let isRefreshing = false;
@@ -52,7 +63,7 @@ const createAuthEmitter = () => {
 export const authEmitter = createAuthEmitter();
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
+  baseURL: validateEnv(),
   headers: {
     'Content-Type': 'application/json',
   },
@@ -84,7 +95,9 @@ axiosInstance.interceptors.response.use(
 
     // Don't retry auth endpoints
     const authEndpoints = ['/auth/login', '/auth/signup', '/auth/refresh'];
-    if (authEndpoints.some((endpoint) => originalRequest.url?.includes(endpoint))) {
+    if (
+      authEndpoints.some((endpoint) => originalRequest.url?.includes(endpoint))
+    ) {
       return Promise.reject(error);
     }
 
@@ -132,7 +145,7 @@ axiosInstance.interceptors.response.use(
       return axiosInstance(originalRequest);
     } catch (refreshError) {
       // Refresh failed - logout user
-      console.error('Token refresh failed:', refreshError);
+      devLog('error', 'Token refresh failed:', refreshError);
       removeValueFromLs(TOKEN_KEY);
 
       // Notify all waiting requests

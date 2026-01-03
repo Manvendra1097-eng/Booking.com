@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import Text from '@/components/ui/Text';
 import { Link } from 'react-router';
 import { PATH } from '@/config/app.path';
+import { VALIDATION_PATTERNS } from '@/lib/utils';
 import useSignin from './hooks/useSignin';
 
 function Signin() {
@@ -25,6 +26,8 @@ function Signin() {
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="mt-4 w-full space-y-2"
+            noValidate
+            aria-label="Sign in form"
           >
             <FormField
               control={form.control}
@@ -32,7 +35,7 @@ function Signin() {
               rules={{
                 required: 'Email is required',
                 pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  value: VALIDATION_PATTERNS.EMAIL,
                   message: 'Enter a valid email address',
                 },
               }}
@@ -42,6 +45,9 @@ function Signin() {
                   <FormControl>
                     <Input
                       placeholder="enter your email"
+                      type="email"
+                      autoComplete="email"
+                      required
                       {...field}
                       disabled={pending}
                     />
@@ -67,6 +73,8 @@ function Signin() {
                     <Input
                       type="password"
                       placeholder="enter your password"
+                      autoComplete="current-password"
+                      required
                       {...field}
                       disabled={pending}
                     />

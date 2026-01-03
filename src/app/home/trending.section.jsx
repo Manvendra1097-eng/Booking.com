@@ -1,5 +1,6 @@
 import { TRENDING_DESTINATIONS } from '@/config/app.config';
 import { getAssetPath } from '@/lib/utils';
+import LazyImage from '@/components/ui/lazy-image';
 import React from 'react';
 
 function Trending() {
@@ -13,21 +14,21 @@ function Trending() {
       </div>
       <div className="grid grid-cols-6 gap-2 md:gap-4">
         {TRENDING_DESTINATIONS.map((item) => (
-          <div
+          <article
             key={item.title}
             className={`h-[270px] relative rounded-lg overflow-hidden ${item.className}`}
           >
-            <img
+            <LazyImage
               className="object-cover size-full"
               src={`${getAssetPath(item.image)}`}
-              alt={item.title}
+              alt={`Trending destination: ${item.title}`}
             />
             <div className="absolute from-70% to-100% inset-0 size-full bg-linear-to-t from-transparent to-blue-800/60">
               <div className="p-3">
                 <h3 className="text-xl font-bold text-white">{item.title}</h3>
               </div>
             </div>
-          </div>
+          </article>
         ))}
       </div>
     </section>

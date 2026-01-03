@@ -1,23 +1,27 @@
 import React, { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import SortFilter from '../filters/sort-filter';
 import Text from '@/components/ui/Text';
-import useQuery from '@/lib/hooks/use-query';
 import { API_CONFIG } from '@/config/aipconfig';
+import axiosInstance from '@/lib/axios-instance';
 import Hotel from './component/hotel';
 import HotelCardSkelton from './component/hotel-card-skelton';
 
 function Hotels({ className }) {
   const { data, isLoading, error } = useQuery({
-    url: API_CONFIG.HOTEL.BROWSE_HOTELS,
-    options: {
-      params: {
-        city: 'Delhi',
-        startDate: '2025-12-31',
-        endDate: '2026-01-02',
-        roomsCount: 2,
-        page: 0,
-        size: 2,
-      },
+    queryKey: ['hotels', 'Delhi', '2025-12-31', '2026-01-02', 2, 0, 2],
+    queryFn: async () => {
+      const response = await axiosInstance.get(API_CONFIG.HOTEL.BROWSE_HOTELS, {
+        params: {
+          city: 'Delhi',
+          startDate: '2025-12-31',
+          endDate: '2026-01-02',
+          roomsCount: 2,
+          page: 0,
+          size: 2,
+        },
+      });
+      return response.data;
     },
   });
 
