@@ -13,19 +13,80 @@ import {
   storeValueInLs,
   TOKEN_KEY,
 } from '@/lib/storage-manage';
-import axiosInstance from '@/lib/axios-instance';
-import { devLog, isAuthError } from '@/lib/utils';
+import axiosInstance, { authEmitter } from '@/lib/axios-instance';
 
 const AuthContext = createContext(null);
 
 const AuthContextProvider = ({ children }) => {
   const [token, setToken] = useState(() => fetchValueFromLs(TOKEN_KEY));
+  const [isInitializing, setIsInitializing] = useState(true);
   const queryClient = useQueryClient();
+
+  // ✅ On mount, check if we can refresh token from cookie
+  useEffect(() => {
+    const initializeAuth = async () => {
+      console.log('🔄 Initializing auth...');
+
+      // If we already have a token, skip refresh attempt
+      if (token) {
+        console.log('✅ Token found in localStorage');
+        setIsInitializing(false);
+        return;
+      }
+
+      // No token in localStorage, but maybe refresh token cookie exists
+      console.log('⚠️ No access token, attempting refresh from cookie...');
+
+      try {
+        const response = await axiosInstance.post('/auth/refresh');
+        const newAccessToken = response.data?.data?.accessToken;
+
+        if (newAccessToken) {
+          console.log('✅ Successfully refreshed token from cookie');
+          storeValueInLs(TOKEN_KEY, newAccessToken);
+          setToken(newAccessToken);
+        } else {
+          console.log('❌ No access token in refresh response');
+        }
+      } catch (error) {
+        console.log('❌ Refresh failed, user needs to login:', error.message);
+        // Refresh failed - user truly needs to login
+        removeValueFromLs(TOKEN_KEY);
+      } finally {
+        setIsInitializing(false);
+      }
+    };
+
+    initializeAuth();
+  }, []); // Only run once on mount
+
+  // Listen for token refresh from axios interceptor
+  useEffect(() => {
+    console.log('🔧 Setting up auth event listeners');
+
+    const unsubscribeRefresh = authEmitter.on('tokenRefreshed', (newToken) => {
+      console.log('✅ Token refreshed event received, updating context');
+      setToken(newToken);
+      queryClient.invalidateQueries({ queryKey: ['user-profile'] });
+    });
+
+    const unsubscribeLogout = authEmitter.on('logout', () => {
+      console.log('🚪 Logout event received from interceptor');
+      setToken(null);
+      queryClient.clear();
+    });
+
+    return () => {
+      console.log('🧹 Cleaning up auth event listeners');
+      unsubscribeRefresh();
+      unsubscribeLogout();
+    };
+  }, [queryClient]);
 
   // TanStack Query for user profile
   const {
     data: user,
-    isLoading,
+    isLoading: isProfileLoading,
     error,
     isError,
   } = useQuery({
@@ -34,54 +95,65 @@ const AuthContextProvider = ({ children }) => {
       const response = await axiosInstance.get(API_CONFIG.USER.PROFILE);
       return response.data;
     },
-    enabled: !!token,
+    enabled: !!token && !isInitializing, // Wait for initialization
     staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     retry: (failureCount, error) => {
-      if (isAuthError(error)) {
+      if (error.response?.status === 401 || error.response?.status === 403) {
         return false;
       }
       return failureCount < 2;
     },
   });
 
-  // Handle token invalidation
+  // Handle auth errors
   useEffect(() => {
     if (isError && token) {
-      if (isAuthError(error)) {
-        devLog('warn', 'Token invalid, logging out');
+      const status = error?.response?.status;
+
+      if (status === 401 || status === 403) {
+        console.error('❌ Auth error after refresh attempt');
         removeValueFromLs(TOKEN_KEY);
         setToken(null);
         queryClient.clear();
       }
     }
-  }, [isError, error?.response?.status, token, queryClient]);
+  }, [isError, error, token, queryClient]);
 
   // Login function
   const login = useCallback((accessToken) => {
+    console.log('🔐 Login: Storing token and updating state');
     storeValueInLs(TOKEN_KEY, accessToken);
     setToken(accessToken);
   }, []);
 
   // Logout function
   const logout = useCallback(async () => {
+    console.log('🚪 Logout: Starting logout process');
+
     try {
-      await axiosInstance.post(API_CONFIG.SIGNOUT, {});
+      if (token) {
+        await axiosInstance.post(API_CONFIG.SIGNOUT, {});
+        console.log('✅ Logout API successful - refresh token cleared');
+      }
     } catch (error) {
-      devLog('warn', 'Logout API failed:', error.message);
+      console.warn('⚠️ Logout API failed, continuing client-side:', error.message);
     } finally {
       removeValueFromLs(TOKEN_KEY);
       setToken(null);
       queryClient.clear();
+
+      console.log('✅ Client-side logout complete');
     }
-  }, [queryClient]);
+  }, [queryClient, token]);
 
   // Update user data (optimistic update)
   const updateUser = useCallback(
     (updates) => {
-      queryClient.setQueryData(['user-profile'], (old) => ({
-        ...old,
-        ...updates,
-      }));
+      queryClient.setQueryData(['user-profile'], (oldData) => {
+        if (!oldData) return oldData;
+        return { ...oldData, ...updates };
+      });
     },
     [queryClient]
   );
@@ -94,7 +166,7 @@ const AuthContextProvider = ({ children }) => {
   const value = {
     user: user || null,
     isAuthenticated: !!token && !!user && !isError,
-    isLoading: isLoading && !!token,
+    isLoading: isInitializing || (isProfileLoading && !!token),
     token,
     login,
     logout,

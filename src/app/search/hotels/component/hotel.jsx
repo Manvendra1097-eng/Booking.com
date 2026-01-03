@@ -141,7 +141,7 @@ function Hotel({ name, photos, city, id, amenities, price }) {
           <p className="text-sm text-muted-foreground">Per Night</p>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 

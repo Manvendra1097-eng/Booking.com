@@ -9,49 +9,51 @@ import UserDropdown from '@/app/auth/use-drop-down';
 
 function Header() {
   const { isAuthenticated, isLoading } = useAuth();
+
   if (isLoading) {
     return (
       <header className="bg-brand pt-2">
-        {/* Skip to main content link for keyboard navigation */}
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:bg-blue-600 focus:text-white focus:p-2 focus:z-50"
-        >
-          Skip to main content
-        </a>
         <div className="container flex justify-between items-center">
           <div className="logo-wrapper">
-            {/* SVG Placeholder - Same dimensions as actual logo */}
-            <svg
-              width="144"
-              height="24"
-              viewBox="0 0 144 24"
-              className="bg-gray-200 animate-pulse rounded"
-              aria-label="Loading Booking.com"
-            >
-              <rect width="144" height="24" fill="currentColor" opacity="0.2" />
-            </svg>
+            <a href="/" aria-label="Go to Booking.com">
+              <img
+                width={144}
+                height={24}
+                src="/assets/booking.com.svg"
+                alt="Booking.com Logo"
+              />
+            </a>
           </div>
+
           <div className="flex gap-2 items-center">
-            <div className="w-20 h-10 bg-gray-200 rounded-sm animate-pulse"></div>
-            <div className="w-20 h-10 bg-gray-200 rounded-sm animate-pulse"></div>
+            {/* Skeleton loaders while checking auth */}
+            <div className="w-20 h-10 bg-white/20 rounded-sm animate-pulse"></div>
+            <div className="w-20 h-10 bg-white/20 rounded-sm animate-pulse"></div>
           </div>
+        </div>
+
+        <div className="container flex gap-1 overflow-x-scroll scrollbar">
+          {SERVICE_LIST.map((item) => (
+            <Button
+              key={item.id}
+              className={`bg-transparent rounded-full hover:bg-white/10 cursor-pointer px-6 h-11 font-normal flex justify-between items-center gap-2 ${
+                item.active && 'border border-white bg-white/10'
+              }`}
+            >
+              <Icon icon={item.icon} />
+              {item.title}
+            </Button>
+          ))}
         </div>
       </header>
     );
   }
+
   return (
     <header className="bg-brand pt-2">
-      {/* Skip to main content link for keyboard navigation */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:bg-blue-600 focus:text-white focus:p-2 focus:z-50"
-      >
-        Skip to main content
-      </a>
       <div className="container flex justify-between items-center">
         <div className="logo-wrapper">
-          <a href="#" aria-label="Go to Booking.com">
+          <a href="/" aria-label="Go to Booking.com">
             <img
               width={144}
               height={24}
@@ -62,26 +64,27 @@ function Header() {
         </div>
 
         <div className="flex gap-2 items-center justify-center">
-          {!isAuthenticated && (
-            <Button
-              asChild
-              className="bg-background text-primary rounded-sm cursor-pointer hover:bg-white/95"
-            >
-              <Link to={PATH.SIGN_UP}> Register</Link>
-            </Button>
+          {!isAuthenticated ? (
+            <>
+              <Button
+                asChild
+                className="bg-background text-primary rounded-sm cursor-pointer hover:bg-white/95"
+              >
+                <Link to={PATH.SIGN_UP}>Register</Link>
+              </Button>
+              <Button
+                asChild
+                className="bg-background text-primary rounded-sm cursor-pointer hover:bg-white/95"
+              >
+                <Link to={PATH.SIGN_IN}>Login</Link>
+              </Button>
+            </>
+          ) : (
+            <UserDropdown />
           )}
-          <Button
-            asChild
-            className="bg-background text-primary rounded-sm cursor-pointer hover:bg-white/95"
-          >
-            {isAuthenticated ? (
-              <UserDropdown />
-            ) : (
-              <Link to={PATH.SIGN_IN}> Login</Link>
-            )}
-          </Button>
         </div>
       </div>
+
       <div className="container flex gap-1 overflow-x-scroll scrollbar">
         {SERVICE_LIST.map((item) => (
           <Button
