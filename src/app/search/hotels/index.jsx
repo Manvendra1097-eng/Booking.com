@@ -64,6 +64,7 @@ function Hotels({ className = '' }) {
 
   const hotels = data?.data.content || [];
   const totalElements = data?.data.totalElements || 0;
+  const totalPages = data?.data.totalPages || 1;
 
   // Add error handling
   if (error) {
@@ -102,6 +103,12 @@ function Hotels({ className = '' }) {
           </div>
         )}
       </section>
+      {/* Pass totalPages as prop for pagination */}
+      <div
+        style={{ display: 'none' }}
+        id="hotels-pagination-data"
+        data-total-pages={totalPages}
+      />
     </div>
   );
 }
