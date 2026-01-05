@@ -1,15 +1,9 @@
-import React from 'react';
-import LocationInput from './location-input';
-import DateInput from './date-input';
-import RoomInput from './room-input';
+import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
-import { devLog } from '@/lib/utils';
-
-const onSubmit = (data) => {
-  devLog('log', 'Search form input: ', data);
-};
+import DateInput from './date-input';
+import LocationInput from './location-input';
+import RoomInput from './room-input';
 
 function Search() {
   const form = useForm({
@@ -22,6 +16,10 @@ function Search() {
       roomCount: 1,
     },
   });
+
+  const onSubmit = (formData) => {
+    console.log(formData);
+  };
   return (
     <div className="container relative -mt-8  z-1">
       <Form {...form}>

@@ -60,34 +60,10 @@ const AuthContextProvider = ({ children }) => {
     initializeAuth();
   }, []); // Only run once on mount
 
-  // Listen for token refresh from axios interceptor
-  useEffect(() => {
-    console.log('🔧 Setting up auth event listeners');
-
-    const unsubscribeRefresh = authEmitter.on('tokenRefreshed', (newToken) => {
-      console.log('✅ Token refreshed event received, updating context');
-      setToken(newToken);
-      queryClient.invalidateQueries({ queryKey: ['user-profile'] });
-    });
-
-    const unsubscribeLogout = authEmitter.on('logout', () => {
-      console.log('🚪 Logout event received from interceptor');
-      setToken(null);
-      queryClient.clear();
-    });
-
-    return () => {
-      console.log('🧹 Cleaning up auth event listeners');
-      unsubscribeRefresh();
-      unsubscribeLogout();
-    };
-  }, [queryClient]);
-
   // TanStack Query for user profile
   const {
     data: user,
     isLoading: isProfileLoading,
-    error,
     isError,
   } = useQuery({
     queryKey: ['user-profile'],
@@ -106,20 +82,6 @@ const AuthContextProvider = ({ children }) => {
     },
   });
 
-  // Handle auth errors
-  useEffect(() => {
-    if (isError && token) {
-      const status = error?.response?.status;
-
-      if (status === 401 || status === 403) {
-        console.error('❌ Auth error after refresh attempt');
-        removeValueFromLs(TOKEN_KEY);
-        setToken(null);
-        queryClient.clear();
-      }
-    }
-  }, [isError, error, token, queryClient]);
-
   // Login function
   const login = useCallback((accessToken) => {
     console.log('🔐 Login: Storing token and updating state');
@@ -137,7 +99,10 @@ const AuthContextProvider = ({ children }) => {
         console.log('✅ Logout API successful - refresh token cleared');
       }
     } catch (error) {
-      console.warn('⚠️ Logout API failed, continuing client-side:', error.message);
+      console.warn(
+        '⚠️ Logout API failed, continuing client-side:',
+        error.message
+      );
     } finally {
       removeValueFromLs(TOKEN_KEY);
       setToken(null);
