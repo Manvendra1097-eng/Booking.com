@@ -23,19 +23,24 @@ function StarFilter({ className, form }) {
               <div className="flex items-center gap-3" key={star.id}>
                 <FormControl>
                   <Checkbox
+                    id={`star-${star.value}`}
                     className="border-foreground size-4"
                     {...field}
-                    checked={field.value?.includes(star.value)}
+                    checked={(field.value || []).includes(star.value)}
                     onCheckedChange={(checked) => {
+                      const currentValue = field.value || [];
                       const newValue = checked
-                        ? [...field.value, star.value]
-                        : field.value?.map((value) => value !== star.value);
+                        ? [...currentValue, star.value]
+                        : currentValue.filter((value) => value !== star.value);
                       field.onChange(newValue);
                     }}
                   />
                 </FormControl>
 
-                <FormLabel className="text-sm font-normal text-foreground">
+                <FormLabel
+                  htmlFor={`star-${star.value}`}
+                  className="text-sm font-normal text-foreground cursor-pointer"
+                >
                   {star.label}
                 </FormLabel>
               </div>

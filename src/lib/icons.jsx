@@ -4,6 +4,8 @@ import {
   CarFront,
   CarTaxiFront,
   Check,
+  ChevronLeft,
+  ChevronRight,
   CircleCheck,
   FerrisWheel,
   Gem,
@@ -38,6 +40,8 @@ export default {
   person: UserRound,
   plus: Plus,
   minus: Minus,
+  chevronLeft: ChevronLeft,
+  chevronRight: ChevronRight,
   curve: ({ ...props }) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"

@@ -1,11 +1,14 @@
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router';
+import dayjs from 'dayjs';
 import DateInput from './date-input';
 import LocationInput from './location-input';
 import RoomInput from './room-input';
 
 function Search() {
+  const navigate = useNavigate();
   const form = useForm({
     defaultValues: {
       city: '',
@@ -18,7 +21,26 @@ function Search() {
   });
 
   const onSubmit = (formData) => {
-    console.log(formData);
+    const { city, bookingDates, roomCount } = formData;
+
+    // Extract just the city name (before comma)
+    const cityName = city.split(',')[0];
+
+    // Format dates as YYYY-MM-DD
+    const startDate = dayjs(bookingDates.from).format('YYYY-MM-DD');
+    const endDate = dayjs(bookingDates.to).format('YYYY-MM-DD');
+
+    // Build query string and navigate
+    const searchParams = new URLSearchParams({
+      city: cityName,
+      startDate,
+      endDate,
+      roomsCount: roomCount,
+      page: 0,
+      size: 2,
+    });
+
+    navigate(`/search?${searchParams.toString()}`);
   };
   return (
     <div className="container relative -mt-8  z-1">

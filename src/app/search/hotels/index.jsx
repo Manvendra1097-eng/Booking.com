@@ -4,28 +4,66 @@ import SortFilter from '../filters/sort-filter';
 import Text from '@/components/ui/Text';
 import { API_CONFIG } from '@/config/aipconfig';
 import axiosInstance from '@/lib/axios-instance';
+import useSearchQuery from '../hooks/useSearchQuery';
 import Hotel from './component/hotel';
 import HotelCardSkelton from './component/hotel-card-skelton';
 
-function Hotels({ className }) {
+function Hotels({ className = '' }) {
+  const {
+    city,
+    startDate,
+    endDate,
+    roomsCount,
+    page,
+    size,
+    starRatings,
+    priceRange,
+    sortBy,
+  } = useSearchQuery();
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ['hotels', 'Delhi', '2025-12-31', '2026-01-02', 2, 0, 2],
+    queryKey: [
+      'hotels',
+      city,
+      startDate,
+      endDate,
+      roomsCount,
+      page,
+      size,
+      starRatings,
+      priceRange,
+      sortBy,
+    ],
     queryFn: async () => {
+      const params = {
+        city,
+        startDate,
+        endDate,
+        roomsCount,
+        page,
+        size,
+      };
+
+      // Add optional filter parameters if they exist
+      if (starRatings) {
+        params.starRatings = starRatings;
+      }
+      if (priceRange) {
+        params.priceRange = priceRange;
+      }
+      if (sortBy) {
+        params.sortBy = sortBy;
+      }
+
       const response = await axiosInstance.get(API_CONFIG.HOTEL.BROWSE_HOTELS, {
-        params: {
-          city: 'Delhi',
-          startDate: '2025-12-31',
-          endDate: '2026-01-02',
-          roomsCount: 2,
-          page: 0,
-          size: 2,
-        },
+        params,
       });
       return response.data;
     },
   });
 
   const hotels = data?.data.content || [];
+  const totalElements = data?.data.totalElements || 0;
 
   // Add error handling
   if (error) {
@@ -41,7 +79,9 @@ function Hotels({ className }) {
   return (
     <div className={className}>
       <div className="flex justify-between items-center">
-        <Text variant="h1">Jaipur: 858 properties found</Text>
+        <Text variant="h1">
+          {city}: {totalElements} properties found
+        </Text>
         <SortFilter />
       </div>
       <section className="mt-4">
@@ -52,7 +92,6 @@ function Hotels({ className }) {
           </div>
         ) : (
           <div className="hotel-list space-y-4">
-            <HotelCardSkelton />
             {hotels?.length > 0 ? (
               hotels.map((hotel) => <Hotel key={hotel.id} {...hotel} />)
             ) : (
