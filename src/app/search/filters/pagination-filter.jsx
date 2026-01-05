@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Pagination,
   PaginationContent,
@@ -10,22 +10,8 @@ import {
 } from '@/components/ui/pagination';
 import useFilterParams from '../hooks/useFilterParams';
 
-function PaginationFilter() {
+function PaginationFilter({ totalPages = 1 }) {
   const { currentPage, setPage } = useFilterParams();
-  const [totalPages, setTotalPages] = useState(1);
-
-  // Get totalPages from hidden div rendered by Hotels
-  useEffect(() => {
-    const el = document.getElementById('hotels-pagination-data');
-    if (el) {
-      const pages = parseInt(el.getAttribute('data-total-pages'), 10);
-      setTotalPages(isNaN(pages) ? 1 : pages);
-    }
-  }, [
-    document
-      .getElementById('hotels-pagination-data')
-      ?.getAttribute('data-total-pages'),
-  ]);
 
   // Helper to generate page numbers (simple version, can be improved for large sets)
   const getPages = () => {

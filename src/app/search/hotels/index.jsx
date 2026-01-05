@@ -8,7 +8,7 @@ import useSearchQuery from '../hooks/useSearchQuery';
 import Hotel from './component/hotel';
 import HotelCardSkelton from './component/hotel-card-skelton';
 
-function Hotels({ className = '' }) {
+function Hotels({ className = '', setTotalPages }) {
   const {
     city,
     startDate,
@@ -65,6 +65,9 @@ function Hotels({ className = '' }) {
   const hotels = data?.data.content || [];
   const totalElements = data?.data.totalElements || 0;
   const totalPages = data?.data.totalPages || 1;
+  React.useEffect(() => {
+    if (setTotalPages) setTotalPages(totalPages);
+  }, [setTotalPages, totalPages]);
 
   // Add error handling
   if (error) {
@@ -103,12 +106,7 @@ function Hotels({ className = '' }) {
           </div>
         )}
       </section>
-      {/* Pass totalPages as prop for pagination */}
-      <div
-        style={{ display: 'none' }}
-        id="hotels-pagination-data"
-        data-total-pages={totalPages}
-      />
+      {/* No hidden div for pagination */}
     </div>
   );
 }
