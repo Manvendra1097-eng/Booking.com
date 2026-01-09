@@ -13,6 +13,8 @@ import {
   useAuth,
 } from '@/context_provider/auth-context-provider';
 import NavigationListener from './NavigationListener';
+import WithSearchBar from './search/with-search-bar';
+import HotelDetails from './hotel-details';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -94,11 +96,22 @@ const Router = () => {
                       </PublicRoute>
                     }
                   />
+                  <Route element={<WithSearchBar />}>
+                    <Route
+                      path={PATH.SEARCH}
+                      element={
+                        <ProtectedRoute>
+                          <SearchPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                  </Route>
+
                   <Route
-                    path={PATH.SEARCH}
+                    path={PATH.HOTEL_DETAILS}
                     element={
                       <ProtectedRoute>
-                        <SearchPage />
+                        <HotelDetails />
                       </ProtectedRoute>
                     }
                   />

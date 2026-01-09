@@ -1,5 +1,4 @@
 import React from 'react';
-import { devLog } from '@/lib/utils';
 
 /**
  * Error Boundary Component
@@ -23,8 +22,8 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     // Log error details for debugging
-    devLog('error', 'Error Boundary caught an error:', error);
-    devLog('error', 'Error Info:', errorInfo);
+    console.log('Error Boundary caught an error:', error);
+    console.log('Error Info:', errorInfo);
 
     // Update state so the next render will show the fallback UI
     this.setState({

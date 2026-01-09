@@ -1,7 +1,8 @@
 import Icon from '@/components/ui/icon';
-import Text from '@/components/ui/Text';
 import LazyImage from '@/components/ui/lazy-image';
+import Text from '@/components/ui/Text';
 import React from 'react';
+import { Link } from 'react-router';
 
 const hotelInfo = {
   description:
@@ -68,9 +69,12 @@ const HotelImages = ({ photos }) => {
   );
 };
 
-function Hotel({ name, photos, city, id, amenities, price }) {
+function Hotel({ name, photos, city, id, amenities, price, searchParams }) {
   return (
-    <article className="flex w-full transition-colors border rounded-lg hover:border-primary">
+    <Link
+      to={`/hotel-details/${id}?${searchParams.toString()}`}
+      className="flex w-full transition-colors border rounded-lg hover:border-primary"
+    >
       <div className="flex-1 flex gap-4 p-4">
         <HotelImages photos={photos} />
         <div className="space-y-3">
@@ -141,7 +145,7 @@ function Hotel({ name, photos, city, id, amenities, price }) {
           <p className="text-sm text-muted-foreground">Per Night</p>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
 

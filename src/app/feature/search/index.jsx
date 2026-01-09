@@ -1,22 +1,24 @@
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import dayjs from 'dayjs';
 import DateInput from './date-input';
 import LocationInput from './location-input';
 import RoomInput from './room-input';
+import { cn } from '@/lib/utils';
 
-function Search() {
+function Search({ className = '' }) {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const form = useForm({
     defaultValues: {
-      city: '',
+      city: searchParams.get('city') || '',
       bookingDates: {
-        from: '',
-        to: '',
+        from: searchParams.get('startDate') || '',
+        to: searchParams.get('endDate') || '',
       },
-      roomCount: 1,
+      roomCount: parseInt(searchParams.get('roomsCount')) || 1,
     },
   });
 
@@ -43,7 +45,7 @@ function Search() {
     navigate(`/search?${searchParams.toString()}`);
   };
   return (
-    <div className="container relative -mt-8  z-1">
+    <div className={cn(`container relative -mt-8  z-10`, className)}>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

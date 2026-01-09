@@ -41,7 +41,10 @@ const CancellationPolicy = ({ cancellationPolicy }) => {
 };
 
 function HotelCheckoutCard({ rooms, cancellationPolicy }) {
-  const room = rooms.filter((r) => r.isSelected === true)[0];
+  //   const room = rooms.filter((r) => r.isSelected === true)[0];
+  const room = rooms?.[0];
+  console.log('room => ', room);
+
   return (
     <div className="space-y-6 p-2">
       <div className="flex  gap-1">

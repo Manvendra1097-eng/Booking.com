@@ -1,3 +1,6 @@
+import { API_CONFIG } from '@/config/aipconfig';
+import axiosInstance from '@/lib/axios-instance';
+import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router';
 
 /**
@@ -20,17 +23,48 @@ export const useSearchQuery = () => {
   const priceRange = searchParams.get('priceRange');
   const sortBy = searchParams.get('sortBy');
 
-  return {
-    city,
-    startDate,
-    endDate,
-    roomsCount,
-    page,
-    size,
-    starRatings,
-    priceRange,
-    sortBy,
-  };
+  const { data, isLoading, error } = useQuery({
+    queryKey: [
+      'hotels',
+      city,
+      startDate,
+      endDate,
+      roomsCount,
+      page,
+      size,
+      starRatings,
+      priceRange,
+      sortBy,
+    ],
+    queryFn: async () => {
+      const params = {
+        city,
+        startDate,
+        endDate,
+        roomsCount,
+        page,
+        size,
+      };
+
+      // Add optional filter parameters if they exist
+      if (starRatings) {
+        params.starRatings = starRatings;
+      }
+      if (priceRange) {
+        params.priceRange = priceRange;
+      }
+      if (sortBy) {
+        params.sortBy = sortBy;
+      }
+
+      const response = await axiosInstance.get(API_CONFIG.HOTEL.BROWSE_HOTELS, {
+        params,
+      });
+      return response.data;
+    },
+  });
+
+  return { city, data, isLoading, error,searchParams };
 };
 
 export default useSearchQuery;

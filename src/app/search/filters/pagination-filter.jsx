@@ -51,7 +51,6 @@ function PaginationFilter({ totalPages = 1 }) {
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
-            href="#"
             onClick={(e) => {
               e.preventDefault();
               if (currentPage > 0) setPage(currentPage - 1);
@@ -81,7 +80,6 @@ function PaginationFilter({ totalPages = 1 }) {
         )}
         <PaginationItem>
           <PaginationNext
-            href="#"
             onClick={(e) => {
               e.preventDefault();
               if (currentPage < totalPages - 1) setPage(currentPage + 1);

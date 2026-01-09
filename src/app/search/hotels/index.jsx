@@ -1,66 +1,12 @@
-import React, { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import SortFilter from '../filters/sort-filter';
 import Text from '@/components/ui/Text';
-import { API_CONFIG } from '@/config/aipconfig';
-import axiosInstance from '@/lib/axios-instance';
+import React from 'react';
+import SortFilter from '../filters/sort-filter';
 import useSearchQuery from '../hooks/useSearchQuery';
 import Hotel from './component/hotel';
 import HotelCardSkelton from './component/hotel-card-skelton';
 
 function Hotels({ className = '', setTotalPages }) {
-  const {
-    city,
-    startDate,
-    endDate,
-    roomsCount,
-    page,
-    size,
-    starRatings,
-    priceRange,
-    sortBy,
-  } = useSearchQuery();
-
-  const { data, isLoading, error } = useQuery({
-    queryKey: [
-      'hotels',
-      city,
-      startDate,
-      endDate,
-      roomsCount,
-      page,
-      size,
-      starRatings,
-      priceRange,
-      sortBy,
-    ],
-    queryFn: async () => {
-      const params = {
-        city,
-        startDate,
-        endDate,
-        roomsCount,
-        page,
-        size,
-      };
-
-      // Add optional filter parameters if they exist
-      if (starRatings) {
-        params.starRatings = starRatings;
-      }
-      if (priceRange) {
-        params.priceRange = priceRange;
-      }
-      if (sortBy) {
-        params.sortBy = sortBy;
-      }
-
-      const response = await axiosInstance.get(API_CONFIG.HOTEL.BROWSE_HOTELS, {
-        params,
-      });
-      return response.data;
-    },
-  });
+  const { city, data, isLoading, error,searchParams } = useSearchQuery();
 
   const hotels = data?.data.content || [];
   const totalElements = data?.data.totalElements || 0;
@@ -97,7 +43,7 @@ function Hotels({ className = '', setTotalPages }) {
         ) : (
           <div className="hotel-list space-y-4">
             {hotels?.length > 0 ? (
-              hotels.map((hotel) => <Hotel key={hotel.id} {...hotel} />)
+              hotels.map((hotel) => <Hotel key={hotel.id} {...hotel} searchParams={searchParams} />)
             ) : (
               <div className="no-results">
                 <p>No hotels found for your search criteria.</p>
