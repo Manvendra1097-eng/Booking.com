@@ -5,12 +5,11 @@ import RoomInput from './room-input';
 import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
-
-const onSubmit = (data) => {
-  console.log('Search form input ... : ', data);
-};
+import dayjs from 'dayjs';
+import { useNavigate } from 'react-router';
 
 function Search() {
+  const navigate = useNavigate();
   const form = useForm({
     defaultValues: {
       city: '',
@@ -18,9 +17,22 @@ function Search() {
         from: '',
         to: '',
       },
-      roomCount: 1,
+      roomsCount: 1,
     },
   });
+
+  const onSubmit = (data) => {
+    const { bookingDates, city, ...rest } = data;
+    const params = {
+      ...rest,
+      city: city?.split(',')[0],
+      startDate: dayjs(bookingDates?.from).format('YYYY-MM-DD'),
+      endDate: dayjs(bookingDates?.to).format('YYYY-MM-DD'),
+    };
+    const searchParams = new URLSearchParams(params);
+    navigate(`/search?${searchParams.toString()}`);
+  };
+
   return (
     <div className="container relative -mt-8  z-1">
       <Form {...form}>

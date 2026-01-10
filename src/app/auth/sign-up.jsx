@@ -12,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Text from '@/components/ui/Text';
+import { Link } from 'react-router';
 
 function Signup() {
   const form = useForm({
@@ -76,9 +77,9 @@ function Signup() {
         </Form>
         <div className="flex gap-2 justify-center">
           <Text variant="mutedp">Already have an account?</Text>
-          <a href="#" className="text-sm text-primary hover:underline">
+          <Link to="/signin" className="text-sm text-primary hover:underline">
             Sign in
-          </a>
+          </Link>
         </div>
       </div>
     </Auth>

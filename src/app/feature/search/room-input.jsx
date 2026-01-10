@@ -10,7 +10,7 @@ import {
 import { useState } from 'react';
 
 function RoomInput({ form }) {
-  const roomCount = form.watch('roomCount');
+  const roomsCount = form.watch('roomsCount');
   const [open, setOpen] = useState(false);
 
   return (
@@ -18,8 +18,8 @@ function RoomInput({ form }) {
       <PopoverTrigger asChild>
         <button className="bg-background w-full h-full flex items-center gap-2 p-4">
           <Icon icon="person" className="stroke-muted-foreground" size="24" />
-          <span>{roomCount}</span>
-          <span>{roomCount <= 1 ? 'room' : 'rooms'}</span>
+          <span>{roomsCount}</span>
+          <span>{roomsCount <= 1 ? 'room' : 'rooms'}</span>
         </button>
       </PopoverTrigger>
       <PopoverContent
@@ -30,7 +30,7 @@ function RoomInput({ form }) {
         className="lg:w-[400px] shadow-lg"
       >
         <FormField
-          name="roomCount"
+          name="roomsCount"
           control={form.control}
           render={({ field }) => (
             <div className="flex flex-col gap-4 py-4">
@@ -44,7 +44,7 @@ function RoomInput({ form }) {
                         ? 'stroke-muted-foreground'
                         : 'stroke-primary'
                     }`}
-                    onClick={() => form.setValue('roomCount', field.value - 1)}
+                    onClick={() => form.setValue('roomsCount', field.value - 1)}
                   />
                   <FormControl>
                     <Input
@@ -55,7 +55,7 @@ function RoomInput({ form }) {
                   <Icon
                     icon="plus"
                     className={`stroke-primary`}
-                    onClick={() => form.setValue('roomCount', field.value + 1)}
+                    onClick={() => form.setValue('roomsCount', field.value + 1)}
                   />
                 </FormItem>
               </div>

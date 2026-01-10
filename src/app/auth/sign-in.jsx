@@ -12,8 +12,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Text from '@/components/ui/Text';
+import { Link, replace, useNavigate } from 'react-router';
+import { useMutation } from '@tanstack/react-query';
+import axiosInstance from '@/lib/axios-instance';
+import { useAuth } from '@/context/authContext';
 
 function Signin() {
+  const navigate = useNavigate();
+  const { setToken } = useAuth();
   const form = useForm({
     defaultValues: {
       email: '',
@@ -21,8 +27,29 @@ function Signin() {
     },
   });
 
+  const login = (credentials) => {
+    const res = axiosInstance.post('/auth/login', credentials);
+    return res;
+  };
+
+  const handleLoginSuccess = (res) => {
+    const accessToken = res.data?.data?.accessToken || null;
+    setToken(accessToken);
+    navigate('/', { replace: true });
+  };
+  const handleLoginError = (err) => {
+    setToken(null);
+    console.log(err);
+  };
+
+  const { mutate, isPending, error } = useMutation({
+    mutationFn: login,
+    onSuccess: handleLoginSuccess,
+    onError: handleLoginError,
+  });
+
   const onSubmit = (data) => {
-    console.log('Sign in data ... :', data);
+    mutate(data);
   };
 
   return (
@@ -69,16 +96,23 @@ function Signin() {
                 </FormItem>
               )}
             />
-            <Button size="lg" className="w-full">
-              Submit
+            <Button disabled={isPending} size="lg" className="w-full">
+              {isPending ? (
+                <>
+                  {' '}
+                  <span className="animate-spin">↻</span> Signing...
+                </>
+              ) : (
+                'Sign in'
+              )}
             </Button>
           </form>
         </Form>
         <div className="flex gap-2 justify-center">
           <Text variant="mutedp">Don't have an account?</Text>
-          <a href="#" className="text-sm text-primary hover:underline">
+          <Link to="/signin" className="text-sm text-primary hover:underline">
             Sign up
-          </a>
+          </Link>
         </div>
       </div>
     </Auth>

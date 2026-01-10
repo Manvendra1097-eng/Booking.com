@@ -1,32 +1,12 @@
-import React, { useMemo } from 'react';
-import SortFilter from '../filters/sort-filter';
 import Text from '@/components/ui/Text';
-import useQuery from '@/lib/hooks/use-query';
-import { API_CONFIG } from '@/config/aipconfig';
+import SortFilter from '../filters/sort-filter';
 import Hotel from './component/hotel';
 import HotelCardSkelton from './component/hotel-card-skelton';
 
-function Hotels({ className }) {
-  const { data, isLoading, error } = useQuery({
-    url: API_CONFIG.HOTEL.BROWSE_HOTELS,
-    options: {
-      params: {
-        city: 'Delhi',
-        startDate: '2025-12-31',
-        endDate: '2026-01-02',
-        roomsCount: 2,
-        page: 0,
-        size: 2,
-      },
-    },
-  });
-
-  const hotels = data?.data.content || [];
-
-  // Add error handling
+function Hotels({ hotels, totalElements,city, error, isLoading }) {
   if (error) {
     return (
-      <div className={className}>
+      <div className="flex-1">
         <div className="error-message">
           Failed to load hotels: {error.message || 'Unknown error'}
         </div>
@@ -35,9 +15,9 @@ function Hotels({ className }) {
   }
 
   return (
-    <div className={className}>
+    <div className="flex-1">
       <div className="flex justify-between items-center">
-        <Text variant="h1">Jaipur: 858 properties found</Text>
+        <Text variant="h1">{`${city}: ${totalElements} properties found`}</Text>
         <SortFilter />
       </div>
       <section className="mt-4">
@@ -48,7 +28,6 @@ function Hotels({ className }) {
           </div>
         ) : (
           <div className="hotel-list space-y-4">
-            <HotelCardSkelton />
             {hotels?.length > 0 ? (
               hotels.map((hotel) => <Hotel key={hotel.id} {...hotel} />)
             ) : (

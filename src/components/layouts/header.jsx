@@ -2,10 +2,14 @@ import React from 'react';
 import { Button } from '../ui/button';
 import { SERVICE_LIST } from '@/config/app.config';
 import Icon from '../ui/icon';
+import { Link } from 'react-router';
+import { useAuth } from '@/context/authContext';
+import AvatarDropDownMenu from '../AvatarDropDownMenu';
 
 function Header() {
+  const { token, profile } = useAuth();
   return (
-    <header className="bg-brand pt-2">
+    <header className="bg-brand pt-2 px-6 lg:px-0">
       <div className="container flex justify-between items-center">
         <div className="logo-wrapper">
           <a href="#" aria-label="Go to Booking.com">
@@ -17,12 +21,17 @@ function Header() {
             />
           </a>
         </div>
-        <div className="flex gap-2 items-center justify-center">
-          <Button className="bg-background text-primary rounded-sm cursor-pointer hover:bg-white/95">
-            Register
-          </Button>
-          <Button className="bg-background text-primary rounded-sm cursor-pointer hover:bg-white/95">
-            Login
+        <div className="flex gap-2 items-center justify-center ">
+          {!token && (
+            <Button className="bg-background text-primary rounded-sm cursor-pointer hover:bg-white/95">
+              <Link to="/signup">Register</Link>
+            </Button>
+          )}
+          <Button
+            asChild
+            className="bg-background text-primary rounded-sm cursor-pointer hover:bg-white/95"
+          >
+            {token ? <AvatarDropDownMenu /> : <Link to="/signin">Login</Link>}
           </Button>
         </div>
       </div>
