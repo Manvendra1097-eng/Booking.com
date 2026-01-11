@@ -1,6 +1,4 @@
-import React from 'react';
-import Auth from '.';
-import { useForm } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -10,47 +8,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import Text from '@/components/ui/Text';
-import { Link, replace, useNavigate } from 'react-router';
-import { useMutation } from '@tanstack/react-query';
-import axiosInstance from '@/lib/axios-instance';
-import { useAuth } from '@/context/authContext';
+import { useSignin } from '@/hooks/useSignin';
+import { Link } from 'react-router';
+import Auth from '.';
 
 function Signin() {
-  const navigate = useNavigate();
-  const { setToken } = useAuth();
-  const form = useForm({
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
-
-  const login = (credentials) => {
-    const res = axiosInstance.post('/auth/login', credentials);
-    return res;
-  };
-
-  const handleLoginSuccess = (res) => {
-    const accessToken = res.data?.data?.accessToken || null;
-    setToken(accessToken);
-    navigate('/', { replace: true });
-  };
-  const handleLoginError = (err) => {
-    setToken(null);
-    console.log(err);
-  };
-
-  const { mutate, isPending, error } = useMutation({
-    mutationFn: login,
-    onSuccess: handleLoginSuccess,
-    onError: handleLoginError,
-  });
-
-  const onSubmit = (data) => {
-    mutate(data);
-  };
+  const { form, onSubmit, isPending } = useSignin();
 
   return (
     <Auth title="Welcome Back" desc="Please enter your details to sign in">
@@ -96,6 +60,11 @@ function Signin() {
                 </FormItem>
               )}
             />
+            {form.formState.errors.root && (
+              <p className="text-sm text-red-500 text-center">
+                {form.formState.errors.root.message}
+              </p>
+            )}
             <Button disabled={isPending} size="lg" className="w-full">
               {isPending ? (
                 <>

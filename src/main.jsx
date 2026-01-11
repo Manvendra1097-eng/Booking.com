@@ -1,10 +1,11 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import './index.css';
 import App from './app';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import Router from './router';
 import AuthProvider from './context/authContext';
+import './index.css';
+import Router from './router';
+
 
 const client = new QueryClient({
   defaultOptions: {

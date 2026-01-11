@@ -12,14 +12,14 @@ function Header() {
     <header className="bg-brand pt-2 px-6 lg:px-0">
       <div className="container flex justify-between items-center">
         <div className="logo-wrapper">
-          <a href="#" aria-label="Go to Booking.com">
+          <Link to="/" aria-label="Go to Booking.com">
             <img
               width={144}
               height={24}
               src="/assets/booking.com.svg"
               alt="Booking.com Logo"
             />
-          </a>
+          </Link>
         </div>
         <div className="flex gap-2 items-center justify-center ">
           {!token && (
@@ -31,7 +31,11 @@ function Header() {
             asChild
             className="bg-background text-primary rounded-sm cursor-pointer hover:bg-white/95"
           >
-            {token ? <AvatarDropDownMenu /> : <Link to="/signin">Login</Link>}
+            {token && profile ? (
+              <AvatarDropDownMenu />
+            ) : (
+              <Link to="/signin">Login</Link>
+            )}
           </Button>
         </div>
       </div>

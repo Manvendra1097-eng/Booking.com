@@ -20,7 +20,7 @@ const useSearchHotels = () => {
   });
   const hotels = data?.data?.data.content || [];
   const totalElements = data?.data?.data.totalElements || 0;
-  return { hotels, totalElements, isLoading, error, city: params.city };
+  return { hotels, totalElements, isLoading, error, params };
 };
 
 export default useSearchHotels;

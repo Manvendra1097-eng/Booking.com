@@ -24,7 +24,7 @@ const CancellationPolicy = ({ cancellationPolicy }) => {
         <div className="space-y-2 p-1">
           <h3 className="font-bold text-lg">Cancellation policy</h3>
           <ul>
-            {cancellationPolicy.map((policy, index) => (
+            {cancellationPolicy.map?.((policy, index) => (
               <li
                 className="list-disc text-muted-foreground textsm"
                 key={index}
@@ -41,7 +41,8 @@ const CancellationPolicy = ({ cancellationPolicy }) => {
 };
 
 function HotelCheckoutCard({ rooms, cancellationPolicy }) {
-  const room = rooms.filter((r) => r.isSelected === true)[0];
+  let room = rooms.filter((r) => r.isSelected === true)[0];
+  room = { ...room, price: 6000 };
   return (
     <div className="space-y-6 p-2">
       <div className="flex  gap-1">

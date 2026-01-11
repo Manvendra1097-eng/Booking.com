@@ -11,12 +11,19 @@ const textVarient = cva('', {
       h4: ' text-sm font-bold tracking-tight',
       p: 'leading-5 [&:not(:first-child)]:mt-2',
       mutedp:
-        'text-sm font-semibold text-muted-foreground [&:not(:first-child)]:mt-1',
+        'text-sm font-semibold leading-none text-muted-foreground [&:not(:first-child)]:mt-1',
+      smh: 'text-sm font-medium [&:not(:first-child)]:mt-1',
       lead: 'text-muted-foreground text-xl',
+      sml: 'text-muted-foreground leading-none text-xs',
+    },
+    align: {
+      center: 'text-center',
+      default: 'text-justify',
     },
   },
   defaultVariants: {
     variant: 'p',
+    align: 'default',
   },
 });
 
@@ -24,11 +31,15 @@ function Text({
   className,
   as: Component = 'p',
   variant = 'p',
+  align = 'default',
   children,
   ...props
 }) {
   return (
-    <Component className={cn(textVarient({ className, variant }))} {...props}>
+    <Component
+      className={cn(textVarient({ className, variant, align }))}
+      {...props}
+    >
       {children}
     </Component>
   );

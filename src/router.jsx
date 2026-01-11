@@ -4,11 +4,16 @@ import Home from './app/home';
 import SearchPage from './app/search';
 import Signin from './app/auth/sign-in';
 import Signup from './app/auth/sign-up';
+import HotelDetails from './app/hotel-details';
+import ErrorUi from './components/ErrorUi';
+import ErrorBoundry from './components/ErrorBoundry';
+import WithSearchLayout from './components/layouts/WithSearchLayout';
 
 const route = [
   {
     path: '/',
     element: <App />,
+    errorElement: <ErrorUi />,
     children: [
       {
         index: true,
@@ -16,7 +21,11 @@ const route = [
       },
       {
         path: 'search',
-        element: <SearchPage />,
+        element: (
+          <WithSearchLayout>
+            <SearchPage />
+          </WithSearchLayout>
+        ),
       },
       {
         path: 'signin',
@@ -25,6 +34,14 @@ const route = [
       {
         path: 'signup',
         element: <Signup />,
+      },
+      {
+        path: 'hotels/:hotelId',
+        element: (
+          <ErrorBoundry>
+            <HotelDetails />
+          </ErrorBoundry>
+        ),
       },
     ],
   },

@@ -13,19 +13,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Text from '@/components/ui/Text';
 import { Link } from 'react-router';
+import { useSignup } from '@/hooks/useSignup';
 
 function Signup() {
-  const form = useForm({
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
-
-  const onSubmit = (data) => {
-    console.log('Sign in data ... :', data);
-  };
-
+  const { form, onSubmit, isPending } = useSignup();
   return (
     <Auth title="Create Account" desc="Please fill the form to sign up">
       <div className="w-full  space-y-4">
@@ -34,6 +25,22 @@ function Signup() {
             onSubmit={form.handleSubmit(onSubmit)}
             className="mt-4 w-full space-y-2"
           >
+            <FormField
+              control={form.control}
+              name="name"
+              rules={{
+                required: 'Name is required',
+              }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="enter your name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="email"
@@ -70,8 +77,15 @@ function Signup() {
                 </FormItem>
               )}
             />
-            <Button size="lg" className="w-full">
-              Create New Account
+            <Button disabled={isPending} size="lg" className="w-full">
+              {isPending ? (
+                <>
+                  {' '}
+                  <span className="animate-spin">↻</span> Creating & Login...
+                </>
+              ) : (
+                'Create New Account'
+              )}
             </Button>
           </form>
         </Form>

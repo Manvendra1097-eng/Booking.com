@@ -1,6 +1,7 @@
 import Icon from '@/components/ui/icon';
 import Text from '@/components/ui/Text';
 import React from 'react';
+import { Link } from 'react-router';
 
 const hotelInfo = {
   description:
@@ -57,9 +58,13 @@ const HotelImages = ({ photos }) => {
   );
 };
 
-function Hotel({ name, photos, city, id, amenities, price }) {
+function Hotel({ name, photos, city, id, amenities, price, params = {} }) {
+  const searchParams = new URLSearchParams(params).toString();
   return (
-    <div className="flex w-full transition-colors border rounded-lg hover:border-primary">
+    <Link
+      to={`/hotels/${id}?${searchParams}`}
+      className="flex w-full transition-colors border rounded-lg hover:border-primary"
+    >
       <div className="flex-1 flex gap-4 p-4">
         <HotelImages photos={photos} />
         <div className="space-y-3">
@@ -127,7 +132,7 @@ function Hotel({ name, photos, city, id, amenities, price }) {
           <p className="text-sm text-muted-foreground">Per Night</p>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 

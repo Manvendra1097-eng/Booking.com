@@ -3,7 +3,7 @@ import SortFilter from '../filters/sort-filter';
 import Hotel from './component/hotel';
 import HotelCardSkelton from './component/hotel-card-skelton';
 
-function Hotels({ hotels, totalElements,city, error, isLoading }) {
+function Hotels({ hotels, totalElements, error, isLoading, params }) {
   if (error) {
     return (
       <div className="flex-1">
@@ -17,7 +17,7 @@ function Hotels({ hotels, totalElements,city, error, isLoading }) {
   return (
     <div className="flex-1">
       <div className="flex justify-between items-center">
-        <Text variant="h1">{`${city}: ${totalElements} properties found`}</Text>
+        <Text variant="h1">{`${params.city}: ${totalElements} properties found`}</Text>
         <SortFilter />
       </div>
       <section className="mt-4">
@@ -29,7 +29,9 @@ function Hotels({ hotels, totalElements,city, error, isLoading }) {
         ) : (
           <div className="hotel-list space-y-4">
             {hotels?.length > 0 ? (
-              hotels.map((hotel) => <Hotel key={hotel.id} {...hotel} />)
+              hotels.map((hotel) => (
+                <Hotel key={hotel.id} {...hotel} params={params} />
+              ))
             ) : (
               <div className="no-results">
                 <p>No hotels found for your search criteria.</p>
