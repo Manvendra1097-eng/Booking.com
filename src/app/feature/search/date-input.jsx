@@ -6,16 +6,30 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import React from 'react';
+import React, { useState } from 'react';
 import dayjs from 'dayjs';
 
 function DateInput({ form }) {
+  const [open, setOpen] = useState(false);
+
   const isDateDisabled = React.useCallback(
     (date) => dayjs().isAfter(dayjs(date), 'date'),
     []
   );
+  const isSameDay = (a, b) => a && b && dayjs(a).isSame(dayjs(b), 'day');
+
+  const isNextDay = (from, to) => {
+    if (!from || !to) return false;
+    return dayjs(to).diff(dayjs(from), 'day') === 1;
+  };
+
+  const handleSelect = (range, field) => {
+    field.onChange(range);
+    if (isNextDay(range?.from, range?.to)) setOpen(false);
+  };
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <FormField
         name="bookingDates"
         control={form.control}
@@ -38,7 +52,8 @@ function DateInput({ form }) {
                       </p>
                       <span aria-hidden>-</span>
                       <p className="text-sm">
-                        {field?.value?.to
+                        {field?.value?.to &&
+                        !isSameDay(field.value.from, field.value.to)
                           ? dayjs(field.value.to).format('ddd D MMM')
                           : 'Check-out date'}
                       </p>
@@ -56,14 +71,11 @@ function DateInput({ form }) {
             >
               <Calendar
                 mode="range"
-                min={2}
                 selected={field.value}
                 numberOfMonths={2}
                 fromMonth={new Date()}
                 disabled={isDateDisabled}
-                onSelect={(value) => {
-                  field.onChange(value);
-                }}
+                onSelect={(range) => handleSelect(range, field)}
                 className="mx-auto"
               />
             </PopoverContent>
